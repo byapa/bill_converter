@@ -11,6 +11,7 @@ and get the payable amount in another currency.
 - [Prerequisites](#prerequisites)
 - [Setup and Installation](#setup-and-installation)
 - [REST API](#rest-api)
+- [Project Structure](#project-structure)
 
 ## Prerequisites
 
@@ -75,4 +76,9 @@ Follow these steps to set up and install the project locally:
 ## REST API
 
 Swagger Doc: /swagger-ui/index.html
+
+## Project Structure
+### Class Diagram
+![bill_calculator_class_diagram.png](wiki/class_diagram/bill_calculator_class_diagram.png)
+source: [diagram.puml](wiki/class_diagram/diagram.puml)
 
