@@ -10,7 +10,8 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-class BillItem {
+public class BillItem {
     private String name;
     private ItemCategory category;
+    private BigDecimal amount;
 }

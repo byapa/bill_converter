@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class User {
     private UserType userType;
-    private int userTenure;
+    private float userTenure;
 }
