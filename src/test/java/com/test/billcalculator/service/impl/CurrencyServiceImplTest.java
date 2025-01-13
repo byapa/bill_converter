@@ -18,7 +18,7 @@ class CurrencyServiceImplTest {
     private ExchangeRateRepo exchangeRateRepo;
 
     @InjectMocks
-    private CurrencyServiceImpl currencyConversionService;
+    private CurrencyConversionServiceImpl currencyConversionService;
 
     @BeforeEach
     public void setUp() {

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
-public class CurrencyServiceImpl implements CurrencyConversionService {
+public class CurrencyConversionServiceImpl implements CurrencyConversionService {
 
     private final ExchangeRateRepo exchangeRateRepo;
 

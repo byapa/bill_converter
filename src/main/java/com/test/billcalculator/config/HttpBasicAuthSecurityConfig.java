@@ -22,8 +22,6 @@ public class HttpBasicAuthSecurityConfig {
 //                                .requestMatchers("/api/**").hasRole("USER")
 //                )
 //                .httpBasic(withDefaults());
-
-//        http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll()); // Allow all requests
 //        return http.build();
 //    }
 

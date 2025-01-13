@@ -1,0 +1,61 @@
+@startuml
+
+class Bill {
+    -List<BillItem> items
+    -BigDecimal totalAmount
+    -String currencyCode
+    -User customer
+}
+
+class BillItem {
+    -String name
+    -ItemCategory category
+    -BigDecimal amount
+}
+
+class User {
+    -UserType userType
+    -float userTenure
+}
+
+Bill --> BillItem
+Bill --> User
+
+interface BillCalculatorService {
+    +calculateTotalPayable(Bill bill, String targetCurrencyCode): BigDecimal
+}
+
+class BillCalculatorServiceImpl {
+    -DiscountCalculatorService discountCalculatorService
+    -CurrencyConversionService currencyConversionService
+}
+BillCalculatorService <|-- BillCalculatorServiceImpl
+
+interface DiscountCalculatorService {
+    +calculateDiscount(Bill bill): BigDecimal
+}
+
+class DiscountCalculatorServiceImpl {
+    -ExchangeRateRepo exchangeRateRepo
+}
+DiscountCalculatorService <|-- DiscountCalculatorServiceImpl
+
+interface CurrencyConversionService {
+    +convertTo(BigDecimal originalAmount, String originalCurrencyCode, String targetCurrencyCode): BigDecimal
+}
+
+class CurrencyConversionServiceImpl {
+    -ExchangeRateRepo exchangeRateRepo
+}
+CurrencyConversionService <|-- CurrencyConversionServiceImpl
+
+interface ExchangeRateRepo {
+    +getExchangeRate(String fromCurrency, String toCurrency): BigDecimal
+}
+
+class ExchangeRateApiRepo {
+    -RestTemplate restTemplate
+}
+ExchangeRateRepo <|-- ExchangeRateApiRepo
+
+@enduml
