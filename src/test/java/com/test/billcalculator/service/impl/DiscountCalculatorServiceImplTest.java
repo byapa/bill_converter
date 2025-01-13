@@ -3,30 +3,38 @@ package com.test.billcalculator.service.impl;
 import com.test.billcalculator.model.Bill;
 import com.test.billcalculator.model.BillItem;
 import com.test.billcalculator.model.User;
+import com.test.billcalculator.repository.ExchangeRateRepo;
 import com.test.billcalculator.service.DiscountCalculatorService;
 import com.test.billcalculator.util.constant.ItemCategory;
 import com.test.billcalculator.util.constant.UserType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 class DiscountCalculatorServiceImplTest {
+
+    @Mock
+    private ExchangeRateRepo exchangeRateRepo;
 
     private DiscountCalculatorService discountCalculatorService;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        discountCalculatorService = new DiscountCalculatorServiceImpl();
+        discountCalculatorService = new DiscountCalculatorServiceImpl(exchangeRateRepo);
     }
 
     @Test
-    void testCalculatePayableAmount_whenCustomerIsAnEmployee() {
+    void testCalculateDiscount_whenCustomerIsAnEmployee() {
         Bill bill = new Bill();
         User customer = new User();
         customer.setUserType(UserType.EMPLOYEE);
@@ -47,7 +55,7 @@ class DiscountCalculatorServiceImplTest {
     }
 
     @Test
-    void testCalculatePayableAmount_whenCustomerIsAnAffiliate() {
+    void testCalculateDiscount_whenCustomerIsAnAffiliate() {
         // Given
         Bill bill = new Bill();
         User customer = new User();
@@ -71,7 +79,7 @@ class DiscountCalculatorServiceImplTest {
     }
 
     @Test
-    void testCalculatePayableAmount_whenCustomerIsNotEmployeeOrAffiliateButTenureExceedsTwoYears() {
+    void testCalculateDiscount_whenCustomerIsNotEmployeeOrAffiliateButTenureExceedsTwoYears() {
         // Given
         Bill bill = new Bill();
         User customer = new User();
@@ -95,7 +103,7 @@ class DiscountCalculatorServiceImplTest {
     }
 
     @Test
-    void testCalculatePayableAmount_groceriesAreExcludedFromPercentageDiscounts() {
+    void testCalculateDiscount_groceriesAreExcludedFromPercentageDiscounts() {
         // Given
         Bill bill = new Bill();
         User customer = new User();
@@ -120,7 +128,7 @@ class DiscountCalculatorServiceImplTest {
     }
 
     @Test
-    void testCalculatePayableAmount_whenTotalAmountExceeds100() {
+    void testCalculateDiscount_whenTotalAmountExceeds100() {
         // Given
         Bill bill = new Bill();
         User customer = new User();
@@ -141,6 +149,55 @@ class DiscountCalculatorServiceImplTest {
         // Flat discount will be applied: 5 + 5 = 10
         BigDecimal expectedAmount = BigDecimal.valueOf(10.0);
         assertEquals(expectedAmount.setScale(2), discountedAmount);
+    }
+
+    @Test
+    void testCalculateDiscount_whenTotalAmountExceeds100AndNotUSD() {
+        // Given
+        Bill bill = new Bill();
+        User customer = new User();
+        customer.setUserType(null);
+        customer.setUserTenure(1.5f);
+        bill.setCustomer(customer);
+        bill.setTotalAmount(new BigDecimal("150.00"));
+        bill.setCurrencyCode("AED");
+        bill.setItems(Arrays.asList(
+                new BillItem("item1", ItemCategory.ELECTRONICS, new BigDecimal("150.00")),
+                new BillItem("item1", ItemCategory.POWER_TOOLS, new BigDecimal("100.00"))
+        ));
+
+        BigDecimal aedToUsdRate = BigDecimal.valueOf(0.2723);
+        when(exchangeRateRepo.getExchangeRate("AED", "USD")).thenReturn(aedToUsdRate);
+
+        // When
+        BigDecimal discountedAmount = discountCalculatorService.calculateDiscount(bill);
+
+        // Then
+        // Flat discount will NOT be applied because USD amount does not exceed 100
+        assertEquals(BigDecimal.ZERO.setScale(2), discountedAmount);
+    }
+
+    @ParameterizedTest
+    @ValueSource(floats = {0.0f, -1.0f})
+    void testCalculateDiscount_returnZeroWhenTotalAmountIsZeroOrNegative(float totalAmount) {
+        // Given
+        Bill bill = new Bill();
+        User customer = new User();
+        customer.setUserType(null);
+        customer.setUserTenure(1.5f);
+        bill.setCustomer(customer);
+        bill.setTotalAmount(BigDecimal.valueOf(totalAmount));
+        bill.setCurrencyCode("USD");
+        bill.setItems(Arrays.asList(
+                new BillItem("item1", ItemCategory.ELECTRONICS, new BigDecimal("150.00")),
+                new BillItem("item1", ItemCategory.POWER_TOOLS, new BigDecimal("100.00"))
+        ));
+
+        // When
+        BigDecimal discountedAmount = discountCalculatorService.calculateDiscount(bill);
+
+        // Then
+        assertEquals(BigDecimal.ZERO.setScale(2), discountedAmount);
     }
 
 }
