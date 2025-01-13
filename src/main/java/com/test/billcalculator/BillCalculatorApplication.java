@@ -1,13 +1,13 @@
-package com.test.bill_converter;
+package com.test.billcalculator;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BillConverterApplication {
+public class BillCalculatorApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BillConverterApplication.class, args);
+		SpringApplication.run(BillCalculatorApplication.class, args);
 	}
 
 }

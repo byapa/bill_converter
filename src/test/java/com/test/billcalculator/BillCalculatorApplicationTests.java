@@ -1,10 +1,10 @@
-package com.test.bill_converter;
+package com.test.billcalculator;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BillConverterApplicationTests {
+class BillCalculatorApplicationTests {
 
 	@Test
 	void contextLoads() {
