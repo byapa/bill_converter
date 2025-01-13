@@ -3,6 +3,7 @@ package com.test.billcalculator.controller;
 import com.test.billcalculator.dto.request.NetPayableAmountCalculationRequestDto;
 import com.test.billcalculator.dto.response.NetPayableAmountResponseDto;
 import com.test.billcalculator.service.BillCalculatorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +21,7 @@ public class NetAmountCalculatorController {
 
     @PostMapping("/calculate")
     public ResponseEntity<NetPayableAmountResponseDto> calculateTotalPayableAmount(
-            @RequestBody NetPayableAmountCalculationRequestDto request) {
+            @Valid @RequestBody NetPayableAmountCalculationRequestDto request) {
 
         BigDecimal totalPayable = billCalculatorService.calculateTotalPayable(request.getBill(),
                 request.getTargetCurrencyCode());

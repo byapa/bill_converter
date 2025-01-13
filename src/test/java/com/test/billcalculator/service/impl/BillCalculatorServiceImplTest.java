@@ -2,15 +2,18 @@ package com.test.billcalculator.service.impl;
 
 import com.test.billcalculator.exception.InvalidInputException;
 import com.test.billcalculator.model.Bill;
+import com.test.billcalculator.model.BillItem;
 import com.test.billcalculator.service.BillCalculatorService;
 import com.test.billcalculator.service.CurrencyConversionService;
 import com.test.billcalculator.service.DiscountCalculatorService;
+import com.test.billcalculator.util.constant.ItemCategory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,7 +43,6 @@ class BillCalculatorServiceImplTest {
         Bill bill = new Bill();
         bill.setTotalAmount(new BigDecimal("800.0"));
         bill.setCurrencyCode(originalCurrencyCode);
-
 
         when(discountCalculatorService.calculateDiscount(bill)).thenReturn(new BigDecimal("200.00"));
         when(currencyConversionService.convertTo(new BigDecimal("600.00"), originalCurrencyCode, targetCurrencyCode)).thenReturn(new BigDecimal("2200.00"));
@@ -112,5 +114,24 @@ class BillCalculatorServiceImplTest {
 
         // Then
         assertEquals("Target currency code cannot be null", exception.getMessage());
+    }
+
+    @Test
+    void testCalculatePayableAmount_throwsInvalidInputExceptionWhenItemAmountSumDoesNotMatchBillTotalAmount() {
+        // Given
+        Bill bill = new Bill();
+        bill.setTotalAmount(new BigDecimal("200.0"));
+        bill.setCurrencyCode("USD");
+        bill.setItems(Arrays.asList(
+                new BillItem("item1", ItemCategory.ELECTRONICS, new BigDecimal("150.00")),
+                new BillItem("item1", ItemCategory.POWER_TOOLS, new BigDecimal("100.00"))
+        ));
+
+        // When
+        InvalidInputException exception = assertThrows(InvalidInputException.class,
+                () -> billCalculatorService.calculateTotalPayable(bill, "AED"));
+
+        // Then
+        assertEquals("Sum of individual item amount does not match the total bill amount", exception.getMessage());
     }
 }

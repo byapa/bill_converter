@@ -3,9 +3,11 @@ package com.test.billcalculator.service.impl;
 import com.test.billcalculator.model.Bill;
 import com.test.billcalculator.model.BillItem;
 import com.test.billcalculator.model.User;
+import com.test.billcalculator.repository.ExchangeRateRepo;
 import com.test.billcalculator.service.DiscountCalculatorService;
 import com.test.billcalculator.util.constant.ItemCategory;
 import com.test.billcalculator.util.constant.UserType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -13,6 +15,7 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class DiscountCalculatorServiceImpl implements DiscountCalculatorService {
 
     private static final double EMPLOYEE_DISCOUNT_PERCENTAGE = 30;
@@ -23,28 +26,42 @@ public class DiscountCalculatorServiceImpl implements DiscountCalculatorService 
     private static final double BILL_DISCOUNT_THRESHOLD = 100.00;
     private static final int DISCOUNT_SCALE = 2;
 
+    private final ExchangeRateRepo exchangeRateRepo;
+
     @Override
     public BigDecimal calculateDiscount(Bill bill) {
-        BigDecimal flatDiscount = applyFlatDiscount(bill);
-        BigDecimal percentageDiscount = applyPercentageDiscount(bill);
+        BigDecimal flatDiscount = getFlatDiscount(bill);
+        BigDecimal percentageDiscount = getPercentageDiscount(bill);
         return percentageDiscount.add(flatDiscount);
     }
 
-    private BigDecimal applyFlatDiscount(Bill bill) {
+    private BigDecimal getFlatDiscount(Bill bill) {
 
-        BigDecimal totalAmount = bill.getTotalAmount();
-        BigDecimal flatDiscountRate = totalAmount.divideToIntegralValue(BigDecimal.valueOf(BILL_DISCOUNT_THRESHOLD));
+        BigDecimal totalAmountInUsd = bill.getTotalAmount();
+        if (!bill.getCurrencyCode().equalsIgnoreCase("USD")) {
+            BigDecimal conversionRate = exchangeRateRepo.getExchangeRate(bill.getCurrencyCode(), "USD");
+            totalAmountInUsd = totalAmountInUsd.multiply(conversionRate);
+        }
+        BigDecimal flatDiscountRate = totalAmountInUsd.divideToIntegralValue(BigDecimal.valueOf(BILL_DISCOUNT_THRESHOLD));
         return BigDecimal.valueOf(FLAT_DISCOUNT_AMOUNT).multiply(flatDiscountRate).setScale(DISCOUNT_SCALE);
     }
 
-    private BigDecimal applyPercentageDiscount(Bill bill) {
+    private BigDecimal getPercentageDiscount(Bill bill) {
 
         BigDecimal totalAmount = bill.getTotalAmount();
-        BigDecimal groceryTotal = calculateGroceryTotal(bill.getItems());
+        BigDecimal groceryTotal = BigDecimal.ZERO;
+        if (bill.getItems() != null) {
+            groceryTotal = calculateGroceryTotal(bill.getItems());
+        }
         BigDecimal discountableAmount = totalAmount.subtract(groceryTotal);
 
         User customer = bill.getCustomer();
         BigDecimal discount = BigDecimal.ZERO;
+
+        if (customer == null) {
+            return discount;
+        }
+
         if (UserType.EMPLOYEE == customer.getUserType()) {
             discount = discountableAmount.multiply(BigDecimal.valueOf(EMPLOYEE_DISCOUNT_PERCENTAGE / 100));
         } else if (UserType.AFFILIATE == customer.getUserType()) {

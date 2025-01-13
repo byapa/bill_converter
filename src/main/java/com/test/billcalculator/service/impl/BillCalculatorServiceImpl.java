@@ -2,6 +2,7 @@ package com.test.billcalculator.service.impl;
 
 import com.test.billcalculator.exception.InvalidInputException;
 import com.test.billcalculator.model.Bill;
+import com.test.billcalculator.model.BillItem;
 import com.test.billcalculator.service.BillCalculatorService;
 import com.test.billcalculator.service.CurrencyConversionService;
 import com.test.billcalculator.service.DiscountCalculatorService;
@@ -27,6 +28,24 @@ public class BillCalculatorServiceImpl implements BillCalculatorService {
 
     private void validateInputsOfTotalPayableCalculation(Bill bill, String targetCurrencyCode)
             throws InvalidInputException {
+        validateMissingInputs(bill, targetCurrencyCode);
+        validateAmounts(bill);
+    }
+
+    private void validateAmounts(Bill bill) {
+        BigDecimal totalAmount = bill.getTotalAmount();
+
+        BigDecimal totalItemAmount = totalAmount;
+        if (bill.getItems() != null) {
+            totalItemAmount = bill.getItems().stream().map(
+                    BillItem::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        if (!totalAmount.equals(totalItemAmount)) {
+            throw new InvalidInputException("Sum of individual item amount does not match the total bill amount");
+        }
+    }
+
+    private static void validateMissingInputs(Bill bill, String targetCurrencyCode) {
         if (targetCurrencyCode == null) {
             throw new InvalidInputException("Target currency code cannot be null");
         }

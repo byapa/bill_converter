@@ -6,10 +6,10 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class ConversionResponseOfExchangeApi {
+public class CurrencyConversionResult {
     private String result;
     private String errorMessage;
 
-    @JsonProperty("conversion_result")
-    private BigDecimal conversionResult;
+    @JsonProperty("conversion_rate")
+    private BigDecimal conversionRate;
 }
