@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DiscountCalculatorServiceImplTest {
+class DiscountCalculatorServiceImplTest {
 
     private DiscountCalculatorService discountCalculatorService;
 

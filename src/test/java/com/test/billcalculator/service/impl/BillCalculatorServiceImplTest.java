@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-public class BillCalculatorServiceImplTest {
+class BillCalculatorServiceImplTest {
 
     @Mock
     private DiscountCalculatorService discountCalculatorService;
@@ -33,7 +33,7 @@ public class BillCalculatorServiceImplTest {
     }
 
     @Test
-    public void testCalculatePayableAmount_withValidInputs() {
+    void testCalculatePayableAmount_withValidInputs() {
         // Given
         String originalCurrencyCode = "USD";
         String targetCurrencyCode = "AED";
@@ -53,7 +53,7 @@ public class BillCalculatorServiceImplTest {
     }
 
     @Test
-    public void testCalculatePayableAmount_throwsInvalidInputExceptionForNullBill() {
+    void testCalculatePayableAmount_throwsInvalidInputExceptionForNullBill() {
         // Given
         String targetCurrencyCode = "AED";
 
@@ -66,7 +66,7 @@ public class BillCalculatorServiceImplTest {
     }
 
     @Test
-    public void testCalculatePayableAmount_throwsInvalidInputExceptionForNullTotalAmount() {
+    void testCalculatePayableAmount_throwsInvalidInputExceptionForNullTotalAmount() {
         // Given
         Bill bill = new Bill();
         bill.setTotalAmount(null);
@@ -83,7 +83,7 @@ public class BillCalculatorServiceImplTest {
     }
 
     @Test
-    public void testCalculatePayableAmount_throwsInvalidInputExceptionForNullCurrencyCode() {
+    void testCalculatePayableAmount_throwsInvalidInputExceptionForNullCurrencyCode() {
         // Given
         Bill bill = new Bill();
         bill.setTotalAmount(new BigDecimal("800.0"));
@@ -100,7 +100,7 @@ public class BillCalculatorServiceImplTest {
     }
 
     @Test
-    public void testCalculatePayableAmount_throwsInvalidInputExceptionForNullTargetCurrencyCode() {
+    void testCalculatePayableAmount_throwsInvalidInputExceptionForNullTargetCurrencyCode() {
         // Given
         Bill bill = new Bill();
         bill.setTotalAmount(new BigDecimal("800.0"));

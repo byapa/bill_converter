@@ -1,7 +1,6 @@
 package com.test.billcalculator.service.impl;
 
 import com.test.billcalculator.dto.response.external.ConversionResponseOfExchangeApi;
-import com.test.billcalculator.service.CurrencyConversionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,7 +14,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-public class ExchangeRateApiBasedConversionServiceTest {
+class ExchangeRateApiBasedConversionServiceTest {
 
     @Mock
     private RestTemplate restTemplate;
@@ -32,7 +31,7 @@ public class ExchangeRateApiBasedConversionServiceTest {
     }
 
     @Test
-    public void testCurrencyConversionService() {
+    void testCurrencyConversionService() {
         // Given
         String fromCurrency = "USD";
         String toCurrency = "AED";
